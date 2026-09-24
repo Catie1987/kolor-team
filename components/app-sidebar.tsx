@@ -27,7 +27,7 @@ const itemsBusiness = [
 ];
 
 const itemsData = [
-  { title: "Marketing", url: "/dashboard/marketing", icon: SquareMousePointer },
+  { title: "My Team Members", url: "/dashboard/member-list", icon: SquareMousePointer },
   { title: "Contact List", url: "/dashboard/contact-list", icon: ContactRound },
 ]
 

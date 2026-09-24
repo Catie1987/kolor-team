@@ -15,4 +15,5 @@ export const breadcrumbLabels: Record<string, string> = {
   "my-task-list": "My Task List",
   "sales-report": "Sales Report",
   "my-kpi" : "My KPI & Share",
+  "member-list": "My Team Member"
 };
