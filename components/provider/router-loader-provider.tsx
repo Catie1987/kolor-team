@@ -2,7 +2,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const RouteLoaderContext = createContext<{
   loading: boolean;
@@ -17,13 +17,15 @@ export function useRouteLoader() {
 export function RouteLoaderProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setLoading(false);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  }, [pathname, searchParams]);
+    if (timeoutRef.current) {
+    clearTimeout(timeoutRef.current);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
