@@ -9,6 +9,7 @@ import { updateProjectTask, type ProjectTask } from "@/lib/actions/project-tasks
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { TaskCommentComponent } from "../../my-task-list/task-comment-component";
 
 interface TaskCardProps {
     task: ProjectTask;
@@ -16,11 +17,13 @@ interface TaskCardProps {
     onEdit: (task: ProjectTask) => void;
     isOverlay?: boolean;
     canManage: boolean;
+    currentUserId: string;
 }
 
-function TaskCard({ task, onDelete, onEdit, isOverlay, canManage }: TaskCardProps) {
+function TaskCard({ task, onDelete, onEdit, isOverlay, canManage, currentUserId }: TaskCardProps) {
     const [mouseIsOver, setMouseIsOver] = useState(false);
-
+    const [taskCommentOpen, setTaskCommentOpen] = useState(false);
+    const [selectedCommentTask, setSelectedCommentTask] = useState<ProjectTask | null>(null);
     const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
         id: task.id,
         data: { type: "Task", task },
@@ -30,6 +33,20 @@ function TaskCard({ task, onDelete, onEdit, isOverlay, canManage }: TaskCardProp
     const style = {
         transition,
         transform: CSS.Transform.toString(transform),
+    };
+
+    // const handleCommentCountChange = (taskId: string, count: number) => {
+    //     setGroups((prev) =>
+    //         prev.map((g) => ({
+    //             ...g,
+    //             tasks: g.tasks.map((t) => (t.id === taskId ? { ...t, commentCount: count } : t)),
+    //         }))
+    //     );
+    // };
+
+    const handleOpenComments = (task: ProjectTask) => {
+        setSelectedCommentTask(task);
+        setTaskCommentOpen(true);
     };
 
     // Ghost placeholder while this card is being dragged
@@ -72,6 +89,11 @@ function TaskCard({ task, onDelete, onEdit, isOverlay, canManage }: TaskCardProp
                 <div className="flex items-center my-auto">
                     <UserAvatar user={task.assignee} size="sm" />
                 </div>
+                <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" disabled={!mouseIsOver} onClick={()=>handleOpenComments(task)}>
+                        <MessageCircle/>
+                        <span>{task.commentCount} {task.commentCount === 1 ? "comment" : "comments"}</span>
+                    </Button>
                 {canManage && (
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="icon-sm" className="rounded-sm" disabled={!mouseIsOver}
@@ -94,7 +116,20 @@ function TaskCard({ task, onDelete, onEdit, isOverlay, canManage }: TaskCardProp
                         </Button>
                     </div>
                 )}
+                </div>
             </div>
+            {selectedCommentTask && (
+                <TaskCommentComponent
+                    open={taskCommentOpen}
+                    setOpen={(open) => {
+                        setTaskCommentOpen(open);
+                        if (!open) setSelectedCommentTask(null); // clear when closed
+                    }}
+                    currentUserId={currentUserId ?? ""}
+                    task={selectedCommentTask}
+                    // onCommentCountChange={handleCommentCountChange}
+                />
+            )}
         </div>
     )
 }

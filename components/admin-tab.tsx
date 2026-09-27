@@ -5,8 +5,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation";
@@ -22,13 +20,16 @@ import { cn } from "@/lib/utils";
 export function AdminTab() {
     const router = useRouter();
     const { start } = useRouteLoader();
-    const { isMobile } = useSidebar();
+    const { isMobile, setOpenMobile } = useSidebar();
     const pathname = usePathname();
     const adminLinks = [
         { href: "/dashboard/assign-job", label: "Assign Job", icon: ListTodo },
         { href: "/dashboard/kpi-report", label: "KPI Report", icon: GalleryVerticalEnd },
         { href: "/dashboard/sales-payroll", label:"Sales Payroll", icon: BanknoteArrowDown }
     ];
+    const handleNavigate = () => {
+        setOpenMobile(false);
+    };
     return (
         <>
         <div className="bg-border/50 shrink-0 h-[0.5px] w-full"/>
@@ -65,6 +66,7 @@ export function AdminTab() {
                                 onClick={() => {
                                     start();
                                     router.push(item.href);
+                                    handleNavigate();
                                 }}
                             >
                                 <item.icon />

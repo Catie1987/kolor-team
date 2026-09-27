@@ -34,8 +34,9 @@ export default async function DashboardLayout({
                       <DashboardBreadcrumb />
                       <UserTab/>
                   </header>
-                  <div className="relative flex-1 h-full mt-4 md:mt-0">
+                  <div className="relative flex-1 h-full mt-0">
                     <RouteLoaderBar/>
+                    <div className="md:hidden w-full h-4"/>
                     {children}
                   </div>
                 </div>

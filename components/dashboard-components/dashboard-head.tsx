@@ -6,7 +6,7 @@ import { CalendarDays } from 'lucide-react';
 import {
   Select, SelectContent, SelectGroup, SelectItem, SelectTrigger,
 } from "@/components/ui/select";
-import type { MonthSelection } from "@/lib/helper";
+import { type MonthSelection } from "@/lib/helper";
 import { MonthYearPicker } from '../month-year-picker';
 import { useState } from 'react';
 
@@ -29,11 +29,17 @@ export function DashBoardHead({ selectedMonth, onMonthChange }: DashBoardHeadPro
         new Date(),
         "EEEE, dd MMM yyyy"
     );
-
+    const hour = new Date().getHours();
+    const greeting =
+    hour < 12
+    ? "Good Morning"
+    : hour < 18
+    ? "Good Afternoon"
+    : "Good Evening";
     if (!isLoaded) return (
         <div className="flex flex-col gap-1">
             <div className='flex items-center'>
-                <h1 className='text-2xl animate-pulse'>Good Morning</h1>
+                <h1 className='text-2xl animate-pulse'>{greeting}</h1>
             </div>
             <Skeleton className='h-6 w-48'/>
         </div>
@@ -45,7 +51,7 @@ export function DashBoardHead({ selectedMonth, onMonthChange }: DashBoardHeadPro
         <div className='flex @xl/main:flex-row flex-col gap-2'>
             <div className="flex flex-1 flex-col gap-1">
                 <div className='flex items-center gap-x-2 flex-wrap'>
-                    <h1 className='@xl/main:text-2xl text-xl'>Good Morning</h1>
+                    <h1 className='@xl/main:text-2xl text-xl'>{greeting}</h1>
                     <h1 className='@xl/main:text-2xl text-xl'>Mr. {user.fullName}</h1>
                 </div>
                 <div className='flex items-center gap-2 text-muted-foreground text-sm'>

@@ -3,9 +3,9 @@ import { useState, useEffect, useMemo } from "react";
 import {
   InputGroup, InputGroupAddon, InputGroupInput,
 } from "@/components/ui/input-group";
-import { Search, Crown, CheckCircle2, Circle, Loader2, Pencil, Trash2, Users } from "lucide-react";
+import { Search, Crown, CheckCircle2, Circle, Loader2, Pencil, Trash2, Users, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { getMyTasks, updateTaskStatus, type MyTaskGroup } from "@/lib/actions/project-tasks";
+import { deleteProjectTask, getMyTasks, ProjectTask, updateTaskStatus, type MyTaskGroup } from "@/lib/actions/project-tasks";
 import { useLoadingRouter } from "@/hooks/use-loading-router";
 import { formatProjectId } from "@/lib/helper";
 import { cn } from "@/lib/utils";
@@ -16,12 +16,19 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { useUser } from "@clerk/nextjs";
+import { getCurrentSupabaseUserId } from "@/lib/actions/users";
+import { getProjectTeamMembers } from "@/lib/actions/projects";
+import { TaskManageDropmenu } from "./task-manage-dropmenu";
+import { DialogTask } from "../project-management/dialog-task";
+import { TaskCommentComponent } from "./task-comment-component";
 
-const statusIcons: Record<string, React.ElementType> = {
-    todo: Circle,
-    in_progress: Loader2,
-    done: CheckCircle2,
-};
+interface TeamMemberOption {
+    id: string; // Supabase users.id — this is what assignee_id needs
+    fullName: string;
+    email: string;
+    imageUrl: string;
+}
 
 
 const statusVariant = [
@@ -32,10 +39,26 @@ const statusVariant = [
 
 export function TaskListClient() {
     const router = useLoadingRouter();
+    const { user } = useUser();
     const [groups, setGroups] = useState<MyTaskGroup[]>([]);
+    const [editingTeamMembers, setEditingTeamMembers] = useState<TeamMemberOption[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<"all" | "todo" | "in_progress" | "done">("all");
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const isAdmin = (user?.publicMetadata as any)?.role === "admin";
+
+    const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
+    const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+    const [editingLeaderId, setEditingLeaderId] = useState<string | null>(null);
+    const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+
+    const [taskCommentOpen, setTaskCommentOpen] = useState(false);
+    const [selectedCommentTask, setSelectedCommentTask] = useState<ProjectTask | null>(null);
+
+    useEffect(() => {
+        getCurrentSupabaseUserId().then(setCurrentUserId);
+    }, []);
 
     const statusCounts = useMemo(() => {
         const counts: Record<string, number> = { all: 0, todo: 0, in_progress: 0, done: 0 };
@@ -47,6 +70,35 @@ export function TaskListClient() {
         }
         return counts;
     }, [groups]);
+
+    const handleEditTask = async (group: MyTaskGroup, task: ProjectTask) => {
+        setEditingTask(task);
+        setEditingProjectId(group.projectId);
+        setTaskDialogOpen(true);
+
+        const { leaderId, members } = await getProjectTeamMembers(group.projectId);
+        setEditingTeamMembers(members);
+        setEditingLeaderId(leaderId);
+    };
+
+    const handleDeleteTask = async (groupIndex: number, taskId: string) => {
+        const previous = groups;
+        setGroups((prev) =>
+            prev.map((g, i) =>
+                i === groupIndex ? { ...g, tasks: g.tasks.filter((t) => t.id !== taskId) } : g
+            )
+        );
+        try {
+            await deleteProjectTask(taskId);
+            toast.add({ type: "success", title: "Deleted", description: "Task removed." });
+        } catch {
+            setGroups(previous);
+            toast.add({ type: "error", title: "Error", description: "Could not delete task." });
+        }
+    };
+
+    const canManageTask = (group: MyTaskGroup, task: ProjectTask) =>
+        isAdmin || group.isLeader || task.assigneeId === currentUserId;
 
     useEffect(() => {
         fetchTasks();
@@ -80,6 +132,11 @@ export function TaskListClient() {
 
     const totalTasks = filteredGroups.reduce((sum, g) => sum + g.tasks.length, 0);
 
+    const handleOpenComments = (task: ProjectTask) => {
+        setSelectedCommentTask(task);
+        setTaskCommentOpen(true);
+    };
+
     const handleToggleStatus = async (groupIndex: number, taskId: string, currentStatus: string) => {
         const nextStatus =
             currentStatus === "todo" ? "in_progress" : currentStatus === "in_progress" ? "done" : "todo";
@@ -100,9 +157,18 @@ export function TaskListClient() {
         }
     };
 
+    const handleCommentCountChange = (taskId: string, count: number) => {
+        setGroups((prev) =>
+            prev.map((g) => ({
+                ...g,
+                tasks: g.tasks.map((t) => (t.id === taskId ? { ...t, commentCount: count } : t)),
+            }))
+        );
+    };
+
     return (
         <div className="flex flex-col flex-1 h-full ">
-            <div className="pb-2 flex flex-col gap-2 sticky top-0 z-20 bg-background w-full">
+            <div className="pb-2 flex flex-col gap-2 sticky z-20 bg-background w-full">
                 <InputGroup className="w-full bg-card shadow-sm">
                     <InputGroupInput
                         placeholder="Search tasks or projects..."
@@ -197,6 +263,7 @@ export function TaskListClient() {
                             <div className="flex flex-col divide-y">
                                 {group.tasks.map((task) => {
                                     const status = statusVariant.find((s) => s.id === task.status) ?? statusVariant[0];
+                                    const canManage = canManageTask(group, task);
                                     return (
                                         <div
                                             key={task.id}
@@ -213,19 +280,26 @@ export function TaskListClient() {
                                             </Button>
                                             <p
                                                 className={cn(
-                                                    "text-sm flex-1 mt-[1px]",
+                                                    "text-sm flex-1 mt-px",
                                                     task.status === "done" && "line-through text-muted-foreground"
                                                 )}
                                             >
                                                 {task.detail}
                                             </p>
-                                            <div className="flex items-center gap-2 @lg/card:ml-0 ml-auto">
-                                                <Button size="icon-sm" variant="outline">
-                                                    <Pencil/>
+                                            <div className="flex items-center gap-2 @lg/card:ml-0 ml-auto min-w-26">
+                                                <Button variant="ghost" onClick={()=>handleOpenComments(task)} className="text-muted-foreground rounded-sm">
+                                                    <MessageCircle/>
+                                                    <span className="text-xs text-left">{task.commentCount > 100 ? "99+" : task.commentCount}</span>
                                                 </Button>
-                                                <Button size="icon-sm" variant="outline">
-                                                    <Trash2 className="text-red-500"/>
-                                                </Button>
+                                                {canManage && (
+                                                    <TaskManageDropmenu 
+                                                        group={group} 
+                                                        groupIndex={groupIndex} 
+                                                        task={task}
+                                                        onEditTask={handleEditTask}
+                                                        onDeleteTask={handleDeleteTask}
+                                                    />
+                                                )}
                                             </div>
                                         </div>
                                     )
@@ -234,6 +308,40 @@ export function TaskListClient() {
                         </div>
                     ))}
                 </div> 
+            )}
+            {editingProjectId && (
+                <DialogTask
+                    projectId={editingProjectId}
+                    leaderId={editingLeaderId ?? ""}
+                    teamMembers={editingTeamMembers} // see note below — needs the project's team members
+                    task={editingTask ?? undefined}
+                    open={taskDialogOpen}
+                    onOpenChange={(open) => {
+                        setTaskDialogOpen(open);
+                        if (!open) {
+                            setEditingTask(null);
+                            setEditingProjectId(null);
+                        }
+                    }}
+                    onSaved={() => {
+                        setTaskDialogOpen(false);
+                        fetchTasks(); // refetch to reflect edits
+                    }}
+                    // currentUserId={currentUserId ?? ""}
+                    // canAssignOthers={isAdmin || false /* or group.isLeader for this project */}
+                />
+            )}
+            {selectedCommentTask && (
+                <TaskCommentComponent
+                    open={taskCommentOpen}
+                    setOpen={(open) => {
+                        setTaskCommentOpen(open);
+                        if (!open) setSelectedCommentTask(null); // clear when closed
+                    }}
+                    currentUserId={currentUserId ?? ""}
+                    task={selectedCommentTask}
+                    onCommentCountChange={handleCommentCountChange}
+                />
             )}
         </div>
     )

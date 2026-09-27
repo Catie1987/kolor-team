@@ -315,7 +315,13 @@ const handleDragEnd = async (event: DragEndEvent) => {
                     </div>
                     <DragOverlay>
                         {activeTask && (
-                            <TaskCard task={activeTask} onDelete={() => {}} onEdit={() => {}} isOverlay canManage={canManageAnyTask}/>
+                            <TaskCard 
+                                task={activeTask} 
+                                onDelete={() => {}} onEdit={() => {}} 
+                                isOverlay 
+                                canManage={canManageAnyTask}
+                                currentUserId={currentUserId}
+                            />
                         )}
                     </DragOverlay>
                 </DndContext>
@@ -375,11 +381,11 @@ function KanbanColumn({
             </div>
 
             <SortableContext items={tasks.map((t) => t.id)}>
-                <div ref={setNodeRef} className="flex flex-grow flex-col gap-2 p-2 overflow-x-hidden overflow-y-auto">
+                <div ref={setNodeRef} className="flex grow flex-col gap-2 p-2 overflow-x-hidden overflow-y-auto">
                     {tasks.map((task) => {
                         const canManageThisTask = canManageAnyTask || task.assigneeId === currentUserId;
                         return(
-                            <TaskCard key={task.id} task={task} onDelete={onDelete} onEdit={onEdit} canManage={canManageThisTask}/>
+                            <TaskCard key={task.id} task={task} onDelete={onDelete} onEdit={onEdit} canManage={canManageThisTask} currentUserId={currentUserId}/>
                         )
                     })}
                 </div>

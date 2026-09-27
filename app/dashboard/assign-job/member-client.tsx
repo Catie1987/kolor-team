@@ -5,7 +5,7 @@ import {
   InputGroup, InputGroupAddon, InputGroupInput,
 } from "@/components/ui/input-group";
 import { useLoadingRouter } from "@/hooks/use-loading-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Pencil, Search } from "lucide-react";
 import {

@@ -81,6 +81,7 @@ export type UserMember = {
     workingHour: string;
     employmentType: string;
     role: string;
+    personalPhone?: string;
 };
 
 export async function getAllMembers(): Promise<UserMember[]> {
@@ -92,13 +93,14 @@ export async function getAllMembers(): Promise<UserMember[]> {
 
     return users.data.map((user) => {
         const unsafeMetadata = user.unsafeMetadata as {
-        position?: string;
-        workingHour?: string;
-        employmentType?: string;
+            position?: string;
+            workingHour?: string;
+            employmentType?: string;
+            personalPhone?: string;
         };
         const publicMetadata = user.publicMetadata as {
-        role?: string;
-    };
+            role?: string;
+        };
     return {
         id: user.id,
         fullName:
@@ -114,6 +116,7 @@ export async function getAllMembers(): Promise<UserMember[]> {
         position: unsafeMetadata.position ?? "",
         workingHour: unsafeMetadata.workingHour ?? "",
         employmentType: unsafeMetadata.employmentType ?? "",
+        personalPhone: unsafeMetadata.personalPhone ?? "",
     };
     });
 }

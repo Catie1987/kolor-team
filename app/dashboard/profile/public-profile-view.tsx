@@ -63,7 +63,7 @@ export default function PublicProfileView({
         )}>
             <Card className="@container/card @xl/main:col-span-2 relative">
                 <div className="flex flex-col @[520px]/card:flex-row items-center px-4 gap-4">
-                    <div className='flex flex-col justify-center items-center max-w-72 w-full'> 
+                    <div className='flex flex-col justify-center items-center max-w-full @[520px]/card:max-w-72 w-full'> 
                         <Avatar className="size-32 shrink-0 after:rounded-lg">
                             <AvatarImage src={user.imageUrl} alt={fullName} className="rounded-lg"/>
                             <AvatarFallback className="text-lg rounded-lg">{initials}</AvatarFallback>
@@ -77,14 +77,14 @@ export default function PublicProfileView({
                         <span className="text-muted-foreground">
                             Joined at: {joinedDate ? format(joinedDate, "MMM dd, yyyy") : "—"}
                         </span>
+                        {bio ? (
+                            <p className="text-muted-foreground mt-4"><span className="whitespace-nowrap mr-2 text-foreground">Bio & Hobbies:</span>{bio}</p>
+                        ) : (
                         <div className="mt-4 flex gap-2 w-full">
-                            <span className="text-muted-foreground whitespace-nowrap">Bio & Hobbies:</span>
-                            {bio ? (
-                                <p className="text-foreground">{bio}</p>
-                                ) : (
-                                <div className="flex-1 border-b border-dotted border-muted-foreground/50" />
-                            )}
+                            <span className="text-muted-foreground whitespace-nowrap">Bio & Hobbies:</span>  
+                            <div className="flex-1 border-b border-dotted border-muted-foreground/50" />
                         </div>
+                    )}
                     </div>
                     <div className="bg-border shrink-0 w-px h-full @[520px]/card:block hidden"/>
                     <div className="grid grid-cols-2 w-full gap-2">

@@ -34,7 +34,7 @@ h2::selection {
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.9104 0.0129 86.8330);
   --input: oklch(0.9104 0.0129 86.8330);
-  --ring: oklch(0.4510 0.1341 264.5623);
+  --ring: #2f509f;
   --chart-1: oklch(0.4510 0.1341 264.5623);
   --chart-2: oklch(0.62 0.17 190);
   --chart-3: oklch(0.65 0.18 145);
@@ -246,4 +246,26 @@ h2::selection {
   .h-screen-main {
     height: calc(100dvh - 64px);
   }
+}
+
+@layer utilities {
+  .scrollbar-primary {
+    scrollbar-width: thin;
+    scrollbar-color: #2f509f transparent;
+  }
+  .scrollbar-primary::-webkit-scrollbar {
+    width: 8px;
+    height: 8px
+  }
+  .scrollbar-primary::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-primary::-webkit-scrollbar-thumb {
+    background: #9fb1ff;
+    border-radius: 2px;
+  }
+  .scrollbar-primary::-webkit-scrollbar-button {
+    display: none !important;
+  }
+  
 }

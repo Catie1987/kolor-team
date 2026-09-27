@@ -10,9 +10,10 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem, 
+  SidebarMenuItem,
+  useSidebar, 
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Calculator, TrendingUp, SquarePen, AlignStartHorizontal, BadgePercent, ContactRound, SquareMousePointer, FileText, Briefcase } from "lucide-react";
+import { LayoutDashboard, Calculator, TrendingUp, SquarePen, BadgePercent, ContactRound, SquareMousePointer, FileText, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/assets/logo/logo-new";
@@ -40,7 +41,10 @@ export function AppSidebar({ role }: { role?: "admin" | "user" }) {
 
   const isActive = (url: string) =>
     url === "/dashboard" ? pathname === url : pathname.startsWith(url);
-  
+  const { setOpenMobile } = useSidebar();
+  const handleNavigate = () => {
+    setOpenMobile(false);
+  };
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-2 text-sm font-medium">
@@ -62,7 +66,7 @@ export function AppSidebar({ role }: { role?: "admin" | "user" }) {
               {itemsBusiness.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton isActive={isActive(item.url)}>
-                    <Link href={item.url} className="flex items-center gap-2 w-full">
+                    <Link href={item.url} className="flex items-center gap-2 w-full" onClick={handleNavigate}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -79,7 +83,7 @@ export function AppSidebar({ role }: { role?: "admin" | "user" }) {
               {itemsData.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton isActive={isActive(item.url)}>
-                    <Link href={item.url} className="flex items-center gap-2 w-full">
+                    <Link href={item.url} className="flex items-center gap-2 w-full" onClick={handleNavigate}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -96,7 +100,7 @@ export function AppSidebar({ role }: { role?: "admin" | "user" }) {
               {itemsTools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton isActive={isActive(item.url)}>
-                    <Link href={item.url} className="flex items-center gap-2 w-full">
+                    <Link href={item.url} className="flex items-center gap-2 w-full" onClick={handleNavigate}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

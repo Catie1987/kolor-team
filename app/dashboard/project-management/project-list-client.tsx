@@ -14,6 +14,7 @@ import { getCurrentSupabaseUserId } from "@/lib/actions/users";
 import { Project } from "@/lib/actions/projects";
 import { DialogDeleteProject } from "./dialog-delete-project";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function ProjectListClient() {
     const { user } = useUser();
@@ -41,7 +42,7 @@ export function ProjectListClient() {
     const isAdmin = (user?.publicMetadata?.role as string | undefined) === "admin";
     const currentUserName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "User";
     return (
-        <div className="@container/main flex flex-col w-full h-full pb-4">
+        <ScrollArea className="@container/main flex flex-col w-full h-full pb-4 overflow-y-auto h-screen-main scrollbar-primary">
                 <div className="flex flex-1 items-center gap-2 p-4 pb-2">
                     <InputGroup className="w-full bg-card shadow-sm">
                         <InputGroupInput 
@@ -131,6 +132,6 @@ export function ProjectListClient() {
                 }}
                 onDeleted={() => setRefreshKey((k) => k + 1)}
             />
-        </div>
+        </ScrollArea>
     )
 }

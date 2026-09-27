@@ -7,7 +7,7 @@ import { MonthSelection } from "@/lib/helper";
 import { useEffect, useState } from "react";
 import { ColleagueStat, getMyTeamColleagues } from "@/lib/actions/dashboard";
 import { DashboardColleague } from "./dashboard-colleague";
-
+import { useLoadingRouter } from "@/hooks/use-loading-router";
 
 interface DashboardTaskMemberProps {
     selectedMonth: MonthSelection;
@@ -16,6 +16,7 @@ interface DashboardTaskMemberProps {
 export function DashboardTaskMember({selectedMonth}: DashboardTaskMemberProps) {
     const [colleagues, setColleagues] = useState<ColleagueStat[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useLoadingRouter();
 
     useEffect(() => {
         setLoading(true);
@@ -47,9 +48,9 @@ export function DashboardTaskMember({selectedMonth}: DashboardTaskMemberProps) {
                     <h2 className="text-lg font-medium">Your Teams</h2>
                     <div className="flex items-center">
                         <Button variant="link" className="px-1"
-                        // onClick={() => router.push("/dashboard/sales-report")}
+                        onClick={() => router.push("/dashboard/member-list")}
                         >
-                            View detail
+                            View all
                         </Button>
                         <ArrowUpRight className="size-4 text-primary"/>
                     </div>

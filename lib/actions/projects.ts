@@ -239,3 +239,36 @@ export const getProjectById = cache(async (id: string) => {
 
     return fullyEnriched as Project;
 })
+
+export interface ProjectTeamData {
+    leaderId: string;
+    members: { id: string; fullName: string; email: string; imageUrl: string }[];
+}
+
+export async function getProjectTeamMembers(projectId: string): Promise<ProjectTeamData> {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const project = await getProjectById(projectId);
+    if (!project) return { leaderId: "", members: [] };
+
+    const members: ProjectTeamData["members"] = [];
+    if (project.leader) {
+        members.push({
+            id: project.leaderId,
+            fullName: project.leader.fullName,
+            email: project.leader.email,
+            imageUrl: project.leader.imageUrl,
+        });
+    }
+    project.participants?.forEach((p, i) => {
+        members.push({
+            id: project.participantIds[i],
+            fullName: p.fullName,
+            email: p.email,
+            imageUrl: p.imageUrl,
+        });
+    });
+
+    return { leaderId: project.leaderId, members };
+}

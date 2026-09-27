@@ -89,7 +89,10 @@ export function DialogTask({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Task</DialogTitle>
+                    <DialogTitle>
+                        {task && "Edit Task"}
+                        {!task && "Add Task"}
+                    </DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-2">
                     <div className="grid gap-2">

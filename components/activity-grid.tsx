@@ -14,6 +14,11 @@ interface ActivityGridProps {
     year: number;
 }
 
+function parseLocalDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+}
+
 export function ActivityGrid({ memberId, month, year }: ActivityGridProps) {
     const [activity, setActivity] = useState<DailyActivity[]>([]);
     const [loading, setLoading] = useState(true);
@@ -31,7 +36,6 @@ export function ActivityGrid({ memberId, month, year }: ActivityGridProps) {
 
     // Pad the start so the grid aligns to weekday columns (Sunday-first)
     const firstDay = new Date(year, month - 1, 1).getDay();
-    console.log(firstDay)
     const leadingBlanks = Array.from({ length: firstDay }, () => null);
 
     return (
@@ -54,7 +58,7 @@ export function ActivityGrid({ memberId, month, year }: ActivityGridProps) {
                             } />
                             <TooltipContent>
                                 <p className="text-xs">
-                                    {format(new Date(day.date), "EEEE, dd MMM yyyy")}
+                                    {format(parseLocalDate(day.date), "EEEE, dd MMM yyyy")}
                                     {day.hasWorkActivity && ` — ${day.actionCount} action${day.actionCount > 1 ? "s" : ""}`}
                                     {day.hasOnlineActivity && !day.hasWorkActivity && " — online only"}
                                     {!day.hasWorkActivity && !day.hasOnlineActivity && " — no activity"}

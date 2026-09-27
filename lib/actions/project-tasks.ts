@@ -12,6 +12,7 @@ export interface ProjectTask extends ProjectTaskInput {
     created_at: string;
     updated_at: string;
     assignee?: { id: string; fullName: string; email: string; imageUrl: string };
+    commentCount: number;
 }
 
 function mapTask(row: any): ProjectTask {
@@ -23,6 +24,7 @@ function mapTask(row: any): ProjectTask {
         status: row.status,
         created_at: row.created_at,
         updated_at: row.updated_at,
+        commentCount: row.comment_count ?? 0,
     };
 }
 
